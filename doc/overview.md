@@ -2,7 +2,7 @@
 # Specification of the FIMS Media SOA Framework
 ### General Description - Version 1.3
 
-_Previous_: [Reference documents](./referenceDocuments.md) ! _Up_: [Contents](./introduction.md) | _Next_: [High-level architectures](./high-levelArchitectures.md)
+_Previous_: [Reference documents](./referenceDocuments.md) | _Up_: [Contents](./introduction.md) | _Next_: [High-level architectures](./high-levelArchitectures.md)
 
 ## Overview
 
@@ -46,7 +46,7 @@ Future versions of the FIMS specification will continue to expand the number of 
 
 * * *
 
-_Previous_: [Reference documents](./referenceDocuments.md) ! _Up_: [Contents](./introduction.md) | _Next_: [High-level architectures](./high-levelArchitectures.md)
+_Previous_: [Reference documents](./referenceDocuments.md) | _Up_: [Contents](./introduction.md) | _Next_: [High-level architectures](./high-levelArchitectures.md)
 
 Copyright 2015 European Broadcasting Union
 
