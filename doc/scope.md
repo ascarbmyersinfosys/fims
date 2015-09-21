@@ -2,7 +2,7 @@
 # Specification of the FIMS Media SOA Framework
 # General Description - Version 1.3
 
-> Previous: [Executive summary](,/introduction.md) Up: [Contents](./introduction.md) Next: [Conformance language](./conformanceLanguage.md)
+_Previous_: [Executive summary](,/introduction.md) _Up_: [Contents](./introduction.md) _Next_: [Conformance language](./conformanceLanguage.md)
 
 ## Scope
 
@@ -23,7 +23,9 @@ The standard major, minor and revision numerical versioning system is used for r
 1.3.x releases of the specification shall contain minor revisions addressing inconsistencies and defects within the basic 
 1.3 release. Additional features to the 1.3 release will only be added to a future 1.x document.
 
-> Previous: [Executive summary](,/introduction.md) Up: [Contents](./introduction.md) Next: [Conformance language](./conformanceLanguage.md)
+* * *
+
+_Previous_: [Executive summary](,/introduction.md) _Up_: [Contents](./introduction.md) _Next_: [Conformance language](./conformanceLanguage.md)
 
 Copyright 2015 European Broadcasting Union
 
