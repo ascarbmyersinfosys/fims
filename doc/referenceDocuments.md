@@ -1,4 +1,4 @@
-![EBU logo](./EBU_logo.svg.png) __EBU TECH 3356__ ![AMWA_logo](./AMWA_logo.png)
+![FIMS logo](./FIMS_logo.png) ![EBU logo](./EBU_logo.svg.png) __EBU TECH 3356__ ![AMWA_logo](./AMWA_logo.png)
 # Specification of the FIMS Media SOA Framework
 ### General Description - Version 1.3
 
