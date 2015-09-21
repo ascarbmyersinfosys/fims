@@ -119,7 +119,7 @@ in the current version of the specification.
 
 <img src="./res_manager.png" alt="Resource manager concept" width="100%"/>
 
-#### Media bus
+#### Media Bus
 
 An extension to SOA often called the "Media Bus" can facilitate storage and media file centric operations. The Media Bus 
 extension is similar to an Enterprise Service Bus (ESB) optimized for large files.
