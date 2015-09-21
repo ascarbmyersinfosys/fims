@@ -1,6 +1,6 @@
-__EBU TECH 3356__
+![EBU logo](./EBU_logo.svg.png) __EBU TECH 3356__ ![AMWA_logo](./AMWA_logo.png)
 # Specification of the FIMS Media SOA Framework
-# General Description - Version 1.3
+### General Description - Version 1.3
 
 _Previous_: [Conformance language](./conformanceLanguage.md) | _Up_: [Content](./introduction.md) | _Next_: [Overview](./overview.md)
 
