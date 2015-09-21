@@ -41,6 +41,8 @@ all aspects in future versions.
 
 [Media-centric issues](#meida-centric-issues) are discussed below.
 
+__Figure 2 and description removed - should add other scopes__
+
 The reference architecture is capable of working with different SOA architectural approaches, supporting SOAP/WSDL and 
 RESTful interaction styles.
 
