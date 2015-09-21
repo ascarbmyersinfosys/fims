@@ -1,6 +1,6 @@
 __EBU Tech 3356__ 
 # Specification of the FIMS Media SOA Framework
-__General Description - Version 1.3__
+### General Description - Version 1.3
 
 ## Executive Summary
 
