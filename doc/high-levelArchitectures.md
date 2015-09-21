@@ -39,7 +39,7 @@ that may differ from conventional IT-based SOA such as:
 Not all of these aspects are addressed in this version of the specification. It is a goal of the FIMS Task Force to address 
 all aspects in future versions.
 
-[Media-centric issues](#Meida-centric_issues) are discussed below.
+[Media-centric issues](#meida-centric-issues) are discussed below.
 
 The reference architecture is capable of working with different SOA architectural approaches, supporting SOAP/WSDL and 
 RESTful interaction styles.
