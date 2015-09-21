@@ -39,8 +39,8 @@ The final section describes [media service behaviour](./mediaServiceBehaviour.md
 * service behaviour that is common to all categories of services;
 * bebaviour specific to each service category.
 
-Details of the data model and communtaiton protocol of FIMS are specified and described in the [self-documenting technical 
-schemas and reltaed artefacts](../WSDL-REST-XSD). 
+Details of the data model and communication protocol of FIMS are specified and described in the [self-documenting technical 
+schemas and related artefacts](../WSDL-REST-XSD). 
 
 Future versions of the FIMS specification will continue to expand the number of supported media service interfaces.
 
