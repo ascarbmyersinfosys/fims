@@ -117,7 +117,7 @@ system because it is left to the orchestration system developer. However, if it 
 services, the Resource Manager interface will need to be defined as a part of the FIMS framework. This is not addressed 
 in the current version of the specification.
 
-<img src="./res-manager.png" alt="Resource manager concept" width="100%"/>
+<img src="./res_manager.png" alt="Resource manager concept" width="100%"/>
 
 #### Media bus
 
