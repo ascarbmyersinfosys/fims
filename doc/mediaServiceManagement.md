@@ -160,6 +160,79 @@ operations, as shown in the figure below.
 
 <img src="job_manage_ops.png" alt="Job management operations" width="60%"/>
 
+The _manageJob_ operation allows a requester to send job commands to change the state of a job as described in the previous 
+section.
+
+If the service implements a job queue, this queue can be managed using the _manageQueue_ operation. The queue commands and 
+the associated state transitions are described in __Section 6.2.1 FIX REFERENCE__.
+
+The _queryJob_ operation returns information about jobs that were submitted to the service. The requester may provide a list 
+with the ID of the jobs it wants the information on.
+
+Alternatively, it can request information of jobs that meet requirements specified by a filter object.
+
+The response list contains the identification of the jobs and detailed information about each job such as 
+_estimatedCompletionDuration_ and _status_.
+
+#### Resource-oriented data model
+
+Messages exchanged about jobs, the services they perform, their profiles, queues and the objects that they operate on 
+conform to a resource-oriented data model. The classes of this data model and their relationships are shown in the UML 
+class diagram in the figure below. The non-referential properties of each class are not shown.
+
+<img src="./resource_clean_pretty.png" alt="FIMS resources data model" width="100%"/>
+
+Future extension of the FIMS framework is expected to take place through extension of this data model. For example, 
+BMObject could be extended to provide different kinds of collections of BMObjects that are used as inputs to, or appear 
+as outputs from, services.
+
+Each resource has a unique identifier property "resourceID" that can be used to make reference to it, just like a 
+hyperlink. In combination with a means to resolve references, a resource-oriented approach enables the following:
+
+* reference can be made to shared and repeated resources so that smaller messages can be exchanged. For example, a 
+  common profile can be defined for a regularly repeated transform operation and stored in a central location. It does 
+  not have to be repeated in every job request, response or status query.
+* the location of a resource to be separated from its use, facilitating geographic scalability and greater resilience 
+  trough the use of resource-resolution technologies such as DNS.
+* support for the introduction of data authority services that provide a single point of authority for classes of 
+  metadata. For example, a digital asset management system is used as the data authority for information about content. 
+  Rather than a copy of the information about the content being kept by each of the systems involved in a job, with all 
+  the associated overhead of keeping a copy, reference can be made to the authoritative version in the asset management 
+  system.
+* a greater degree of loose-coupling, including more agility to introduce loosely-coupled monitoring systems and dashboards.
+* RESTful bindings for resources.
+
+An optional "revisionID" property may be used to keep track of revision numbers for a resource, supporting systems that 
+use an eventually consistent approach.
+
+An optional URI "location" property may be used to provide a specific location for the resource (URL) that can be referenced 
+without the need for resource identifier resolution.
+
+In terms of the normative representation of the data model as an XML schema, all properties for resources are marked as 
+optional from an XML perspective (`minOccurs="0"`), with the exception of the "resourceID" property. This mechanism allows 
+a resource to be included by reference rather than embedding it.
+
+To encode a reference to a resource rather than embedding it, omit all of its properties other than "resourceID", "revisionID" 
+(where used) and "location" (where used). The decoder of the message is then expected to either resolve the reference to the 
+resource or report a fault.
+
+To encode a resource by embedding its value, include the value of at least one property other than "resourceID", "revisionID"
+and "location". In general, all known property values for a resource are encoded to minimize the requirement to merge versions
+of the resource. The decoder is not expected to resolve the resource by reference externally and may update an internal copy 
+of the resource based on the information provided.
+
+The use of XML optionality (`minOccurs="0"`) for a property in the XML schema does not imply that the property is optional 
+in a FIMS implementation. Properties that are defined as mandatory through specification, in either a request or a response 
+message and in at least one job state, must be supported by all FIMS implementations.
+
+> Note: Mandatory properties are in request or response messages are defined per property in the XML schema annotations with 
+  source `urn:x-fims:inclusionInRequest` and `urn:x-fims:inclusionInResponse`.
+  
+FIMS defines both normative technical metadata (e.g., Format, VideoFormat, AudioFormat) and recommended descriptive metadata 
+(ContentDescription). Users are encouraged to use the core descriptive metadata provided in the FIMS schema to improve 
+interoperability. Both technical and descriptive metadata are based on EBUCore, an EBU extension of the Dublin Core for media.
+
+
 * * *
 
 _Previous_: [High-level architectures](./high-levelArchitectures.md) | _Up_: [Contents](./introduction.md) | _Next_: [Media service awareness](./mediaServiceAwareness.md)
