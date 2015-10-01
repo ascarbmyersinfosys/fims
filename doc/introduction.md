@@ -36,6 +36,9 @@ interchangeability and reusability of media specific services.
     * [Management commands](./mediaServiceManagement.md#management-commands)
     * [Resource-oriented data model](./mediaServiceManagement.md#resource-oriented-data-model) 
 * [Media service awareness](./mediaServiceAwareness.md)
+  * [Service registry](./mediaServiceAwareness.md#service-registry)
+    * [Listing registered services](./mediaServiceAwareness.md#listing-registered-services) 
+  * [Service description](./mediaServiceAwareness.md#service-description)
 * [Media service behaviour](./mediaServiceBehaviour.md)
 * [Annex 1: Future visions - Pipelined media services](./pipelined.md)
 
