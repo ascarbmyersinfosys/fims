@@ -2,7 +2,7 @@
 # Specification of the FIMS Media SOA Framework
 ### General Description - Version 1.3
 
-_Previous_: [High-level architectures](./mediaServiceManagement.md) | _Up_: [Contents](./introduction.md) | _Next_: [Media service awareness](./mediaServiceBehaviour.md)
+_Previous_: [Media service management](./mediaServiceManagement.md) | _Up_: [Contents](./introduction.md) | _Next_: [Media service behaviour](./mediaServiceBehaviour.md)
 
 ## Media service awareness
 
@@ -65,7 +65,7 @@ multiple endpoints.
 
 * * *
 
-_Previous_: [High-level architectures](./mediaServiceManagement.md) | _Up_: [Contents](./introduction.md) | _Next_: [Media service awareness](./mediaServiceBehaviour.md)
+_Previous_: [Media service management](./mediaServiceManagement.md) | _Up_: [Contents](./introduction.md) | _Next_: [Media service behaviour](./mediaServiceBehaviour.md)
 
 Copyright 2015 European Broadcasting Union
 
