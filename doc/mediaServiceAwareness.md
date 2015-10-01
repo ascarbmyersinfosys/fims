@@ -24,7 +24,7 @@ The URL within the registration file may provide a hint as a `Service` query str
 will be discovered when the URL is queried.
 
 For example, the registry could contain URLs such as the following, including those that assist in the discovery of, say, a 
-Capture or a Transform service:
+Capture service:
 
 * http://some.dns.entry/
 * http://some.dns.entry/AnyURL
