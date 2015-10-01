@@ -106,7 +106,7 @@ base XML schema.
 
 This is another interaction pattern for long running processes, where the preferred interaction pattern is not possible 
 (e.g. a firewall preventing a service to call back a client). It is similar to the [asynchronous request/response with 
-notification](#asynchronous-request/response-with-notification) interaction mode with the exception that a notification 
+notification](#asynchronous-requestresponse-with-notification) interaction mode with the exception that a notification 
 is not sent by the service when the service completes the operation. The _notifyAt_ parameter shall not be provided for 
 the service to operate in this mode. See the following figure.
 
@@ -122,7 +122,7 @@ message for the status request brings back the result of the operation.
 
 The result of the job execution is contained in the jobs element. This element shall be present when retrieving the job 
 information after the service completes the operation. The same information that would be part of the notification message 
-in the pattern specified in the [previous section](#asynchronous-request/response-with-notification) shall be present in 
+in the pattern specified in the [previous section](#asynchronous-requestresponse-with-notification) shall be present in 
 this field.
 
 A transform operation of the Transform Media service may be implemented using this type of interaction.
