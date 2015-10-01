@@ -10,10 +10,10 @@ _Previous_: [High-level architectures](./high-levelArchitectures.md) | _Up_: [Co
 
 The main lifecycle states of a service are:
 
-* Service deployed
-* Service updated
-* Service replaced
-* Service decommissioned
+* Service deployed.
+* Service updated.
+* Service replaced.
+* Service decommissioned.
 
 #### Deployment
 
