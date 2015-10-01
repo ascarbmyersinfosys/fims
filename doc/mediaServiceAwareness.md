@@ -45,7 +45,8 @@ are required. Whenever information is moved out-of-band, the ability of a system
 Either the system must wait for human intervention, or the information must be brought back into the scope of the system 
 via extension.
 
-__ CHECK THE FOLLOWING STATEMENT __
+__CHECK THE FOLLOWING STATEMENT__
+
 For this reason, the FIMS specification defines a machine-readable model for providing information about operations a 
 service will accept along with the current configuration of the service. This model references EBU Core Metadata.
 
