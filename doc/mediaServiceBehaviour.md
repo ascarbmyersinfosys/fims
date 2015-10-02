@@ -540,10 +540,11 @@ service are represented as REST messages. The table shall consist of the followi
   value returned as the body of a response message for a successful operation.
 * __Failure body__ - Reference to the XML element name or XML element type that shall be used to represent the FIMS 
   value returned as the body of a response message for a failed operation.
-* __HTTP request headers__ - In addition to the required [version number header]() and standard HTTP 
-  headers, any FIMS-specific HTTP headers that shall be included with the request message.
-* __HTTP response headers__ - In addition to the required [version number header]() and standard HTTP headers, any 
-  FIMS-specific headers that shall be included with a successful operation response message.
+* __HTTP request headers__ - In addition to the required [version number header](./mediaServiceManagement.md#fims-interface-versioning) 
+  and standard HTTP headers, any FIMS-specific HTTP headers that shall be included with the request message.
+* __HTTP response headers__ - In addition to the required [version number header](./mediaServiceManagement.md#fims-interface-versioning) 
+ and standard HTTP headers, any FIMS-specific headers that shall be included with a successful operation response 
+ message.
 
 The status code of a response message shall either be a redirect code (300 range) or as follows:
 
