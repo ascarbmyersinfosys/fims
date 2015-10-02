@@ -593,9 +593,9 @@ serialized to and deserialized from XML as defined by the referenced element of 
 ##### JSON representation as conversion to and from XML
 
 The body of any REST messages with "Content-Type" set to "application/json" shall be FIMS values serialized to JSON as 
-defined by first [serializing the value to XML](#REST-message-XML-representation) and then applying the rules of this 
+defined by first [serializing the value to XML](#rest-message-xml-representation) and then applying the rules of this 
 section. In reverse, the rules of this Section shall be applied to convert the JSON value back to XML and then 
-[deserialized according to the XML rules](#REST-message-XML-representation).
+[deserialized according to the XML rules](#rest-message-xml-representation).
 
 > Note: The conversion mechanism for JSON to and from XML is provide as a means to define the JSON representation using 
   the existing XML schema. Implementations do not have to implement this approach and may use more efficient means of 
