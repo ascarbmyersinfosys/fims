@@ -319,7 +319,7 @@ Future extensions of the framework may extend the `BMObjectType` with different 
 
 ##### Partial media reference
 
-FIMS v1.2 provides three means of referencing partial media, for example between a timecode in and timecode out:
+From FIMS v1.2 onwards, three means of referencing partial media are provided, for example between a timecode start and end:
 
 1. The Capture service has parameters for _in points_ and _out points_. This allows the capture device to be controlled so
    that it only captures part of a source.
@@ -358,10 +358,357 @@ providers that support a FIMS service specification.
 
 This section gives two common functions of service interfaces: Time Constraints and Profiles.
 
+#### Time constraints
 
+Time Constraints are time-related constraints during the job execution that are specified in 
+the service request message. Time Constraints consist of the following four parameters:
 
+1. _startJob_
 
+  _startJob_ is one of the elements of the `JobType`, and is applicable to any service. It specifies the system time 
+  when the  job shall start. Usually, this indicates the time at which a request message is extracted from the queue 
+  and is moved to the _running_ state.
+  
+  There are the following three types to specify the time parameter of _startJob_:
+  * NoWait type: execute immediately
+  * Time type: the time to start
+  * Latest type: the latest time at which a process can be started at the _startProcess_ properly.
+  
+2. _startProcess_
 
+  _startProcess is a parameter for services that need to handle a real-time stream function such as Capture or Playout, 
+  and specifies the system time at the start of the stream process.
+  
+  There are the following four types to specify the time parameter of _startProcess_, which may need to be frame accurate:
+  * NoWait type: execute immediately
+  * Time type: the time to start
+  * TimeMark type: the time at which the TimeMark embedded in essence such as a timecode is detected
+  * ServiceDefinedTime type: the time defined by a service
+  
+  A service that supports Time and/or TimeMark type shall declare this in the Service Description.
+
+3. _stopProcess_
+
+  _stopProcess_ is a parameter for services that need to handle a real-time stream function such as Capture or Playout. 
+  This specifies the time when the stream process shall stop.
+  
+  There are the following five types to specify the time parameter of stopProcess, which may need to frame accurate:
+  * OpenEnd type: the time at which a stop command is received
+  * Time type: the time to stop
+  * TimeMark type: the time at which the TimeMark embedded in essence such as a timecode is detected
+  * Duration type: the time at which point the specified duration has elapsed since _startProcess_
+  * ServiceDefinedTime type: the time defined by a service
+  
+  A service that supports Time, TimeMark, and/or Duration type shall declare this in the Service Description.
+  
+4. _finishBefore_
+
+  _finishBefore_ is one of the elements of the `JobType`, and is applicable to any service. It specifies the time 
+  by which the job shall have been completed.
+  
+  _finishBefore_ also specifies the deadline for the job execution. For example, in the case of specifying TimeMark 
+  type in the _stopProcess_, it can be used as a timeout time. When _finishBefore_ is exceeded before the job is 
+  completed, the service shall notify "SVC_S00_0016: Deadline passed" to the orchestration system.
+  
+  If the service cannot accommodate the time constraint, the service shall notify the error code SVC_S00_0017 to the 
+  orchestration system: “Time Constraints in request cannot be met”.
+  
+  A service that can control the job completion time by using finishBefore shall declare this in the Service Description. 
+  Even if a service does not itself support the function to control the job completion time, an orchestration system 
+  should specify _finishBefore_ as a deadline.
+  
+##### Use Cases on time constraints
+
+The table below shows possible use cases with the combination of _startProcess_ and _stopProcess_.
+
+| startProcess       | stopProcess        | Description                                                        |
+|:------------------:|:------------------:|:-------------------------------------------------------------------|
+| NoWait             | OpenEnd            | Start ASAP, stop when stop command (manageJobRequest) is received. |
+|                    | TimeMark           | Start ASAP, stop when the specified timeMark is detected.              |
+|                    | Time               | Start ASAP, stop at the specified time.                            |
+|                    | ServiceDefinedTime | Start ASAP, stop at the service defined time.                      |
+|                    | Duration           | Start ASAP, stop when the specified duration has passed.               |
+| TimeMark           | OpenEnd            | Start when the specified timeMark is detected, stop when stop command (manageJobRequest) is received. |
+|                    | TimeMark           | Start when the specified timeMark is detected, stop when the specified timeMark is detected. |
+|                    | Time               | Start when the specified timeMark is detected, stop at the specified time. |
+|                    | ServiceDefinedTime | Start when the specified timeMatk is detected, stop at the service defined time.   |
+|                    | Duration           | Start from the specified timeMark is detected, stop when the specified duration has passed. |
+| Time               | OpenEnd            | Start from the specified time, stop when stop command (manageJobRequest) is received. |
+|                    | TimeMark           | Start from the specified time, stop when the specified timeMark is detected. |
+|                    | Time               | Start from the specified time, stop at the specified time.         |
+|                    | ServiceDefinedTime | Start from the specified time, stop at the service defined time.   |
+|                    | Duration           | Start from the specified time, stop when the specified duration has passed. |
+| ServiceDefinedTime | OpenEnd            | Start at the service defined time, stop when the stop commmand (manageJobRequest) is received. |
+|                    | TimeMark           | Start at the service defined time, stop when the specified timeMark is detected. |
+|                    | Time               | Start at the service defined time, stop at the specified time.     |
+|                    | ServiceDefinedTime | Start at the service defined time, stop at the service defined time. |
+|                    | Duration           | Start at the service defined time, stop when the specified duration has passed. |
+
+##### Sequence diagram examples
+
+The figure below shows an example of the Capture Service sequence diagram in terms of Time Constraints. The source type of 
+this example is VTR and both inPoint and outPoint are the specified time code.
+
+<img src="capture_seq.png" alt="Example of the Capture service sequence diagram in terms of time constraints" width="80%"/>
+
+A service receives a request message from an Orchestration System. The service starts job at _startJob_, and performs some 
+actions such as cueing up to the inPoint, starting playback and detecting specified time code. Of importance is that the
+instruction of how and when to control the device is not included in the request message. The service manages to control the 
+device by itself according to the information such as _startProcess_/_stopProcess_, inPoint/outPoint in the request message. 
+A capture process starts at the serviceDefinedTime; it will stop at another serviceDefinedTime. After some finishing job 
+process is performed, a CaptureNortification is issued to the Orchestration System to report completion.
+
+The following figure shows the case where Time Constraints in the request message cannot be met for some reason. This can 
+occur when a service receives the request message, or during queuing, or even during running. In this case, the service 
+shall issue a CaptureFault with the error code “SVC_S00_0017: Time Constraints in request cannot be met" to the 
+Orchestration System.
+
+<img src="t_constraint_fail.png" alt="Example where Time Constraints cannot be met" width="80%"/>
+
+The final sequence diagram below shows the case where the time specified by _finishBefore_ has passed before the 
+capture process has been completed. In this case, the service shall issue CaptureFaultNotification with the error 
+code "SVC_S00_0016 Deadline passed" to the orchestration system. After issuing the CaptureFaultNotification, the 
+service should wait for the next instruction from the orchestration without stopping the process.
+
+<img src="finishBefore_passed.png" alt="Example where the time specified by finishBefore has passed before completion" width="80%"/>
+
+#### Profiles
+
+Requests to any FIMS service interface shall include a profile that describes the specific operations that will take place 
+as part of that request. Profiles themselves are composed of parameters specific to that service interface and generic 
+elements that are available for re-use between interfaces. These reusable elements are combined into groups referred to 
+as _Atoms_.
+
+Profile structures are specified for each service interface that FIMS defines. Profiles inherit from _ProfileType_, which is 
+used to provide a common basis for all profiles (figure below).
+
+<img src="profile_type.png" alt="ProfileType" width="40%"/>
+
+Profiles can be shared between jobs and [included by reference](./mediaServiceManagement.md#resource-oriented-data-model).
+
+Where possible, implementations should use the specified profile.
+
+The figure below shows an example of a request with two Capture profiles being used to create main stream essence 
+(J2K + MXF) and proxy essence (AVC + MP4) and outputting though different transfer atoms (possibly to different 
+locations over different transports).
+
+<img src="capture_profiles.png" alt="Example of Capture request with multiple profiles" width="100%"/>
+
+### RESTful service interfaces
+
+This Section defines the RESTful representation of FIMS values in REST messages and how RESTful services are defined. 
+The rules of this Section are to a REST services what the WSDL files are WSDL/SOAP services.
+
+REST service definition tables shall be used to define FIMS RESTful services. These tables shall be included as 
+documentation with the XML schema documentation for each service. Each table makes reference to elements of the schemas 
+that define the XML or JSON representation of the body of a REST message.
+
+#### Namespaces for REST service definition
+
+The table below defines the namespaces and prefixes that shall be used for the definition of REST services in the XML schema.
+
+| Schema name                      | Prefix | Namespace                                                            |
+|:---------------------------------|:------:|:---------------------------------------------------------------------|
+| Base meida service               | bms    | [http://base.fims.tv](../WSDL-REST-XSD/baseMediaService.xsd)         |
+| Base time values                 | tim    | [http://baseTime.fims.tv](../WSDL-REST-XSD/baseTime.xsd)             |
+| Transfer media service           | tms    | [http://transfermedia.fims.tv](../WSDL-REST-XSD/transferMedia.xsd)   |
+| Transform media service          | tfms   | [http://transformMedia.fims.tv](../WSDL-REST-XSD/transformMedia.xsd) |
+| Capture media service            | cms    | [http://captureMedia.fims.tv](../WSDL-REST-XSD/captureMedia.xsd)     |
+| Repository service               | rps    | [http://repository.fims.tv](../WSDL-REST-XSD/repository.xsd)         |
+| Quality analysis service         | mqas   | [http://mediaqa.fims.tv](../WSDL-REST-XSD/mediaQA.xsd)               |
+
+> Note: Namespaces [http://mediaqar.fims.tv](../WSDL-REST-XSD/qaReport.xsd) (prefix `qar`) and 
+  [http://mediaqat.fims.tv](../WSDL-REST-XSD/qaTemplate.xsd) (prefix `qat`) are reserved and used for quality 
+  assurrance reports and templates respectively.
+
+The namespaces listed in the table above are for the services defined as of this version of the specification. Any 
+services that make use of this framework but are not part of this FIMS version shall state the namespace and prefix 
+used to define the RESTful mapping of the service.
+
+#### REST service definition tables
+
+The documentation for each service shall include a _REST service definition table_ that defines how the operations of the 
+service are represented as REST messages. The table shall consist of the following columns:
+
+* __Description__ - Description of the operation.
+* __HTTP method__ - HTTP method that shall be used for a request message for the operation, e.g. GET, POST, DELETE.
+* __URI__ - URI that shall be used to access the RESTful service that is specified relative to the endpoint for the 
+  REST service, e.g. "…/job".
+* __Request body__ - Reference to the XML element name and XML element type that shall be used to represent the FIMS 
+  value that shall be the body of the request message.
+* __Success body__ - Reference to the XML element name or XML element type that shall be used to represent the FIMS 
+  value returned as the body of a response message for a successful operation.
+* __Failure body__ - Reference to the XML element name or XML element type that shall be used to represent the FIMS 
+  value returned as the body of a response message for a failed operation.
+* __HTTP request headers__ - In addition to the required [version number header]() and standard HTTP 
+  headers, any FIMS-specific HTTP headers that shall be included with the request message.
+* __HTTP response headers__ - In addition to the required [version number header]() and standard HTTP headers, any 
+  FIMS-specific headers that shall be included with a successful operation response message.
+
+The status code of a response message shall either be a redirect code (300 range) or as follows:
+
+* 200 - OK - Successful operation, synchronous or asynchronous response;
+* 201 - Created - Successful operation that has resulted in the creation of a new object;
+* A failed operation containing a fault message with the status code set to the value of status code as defined for 
+  the specific fault. See the general and specific FaultType documentation as part of the XML schemas.
+
+FIMS REST clients should follow HTTP redirection responses as defined in the HTTP specifications.
+
+Any URI parameters, HTTP headers, and query arguments shall be described as in Table 3. Parameters on a URI are identified 
+in REST service definition tables using curly braces {} and require substitution with appropriate parameters before use. 
+Query parameters will be _italicized_.
+
+| Parameter | Description | Values |
+|:---------:|:------------|:-------|
+| {jobID}   | Unique identifier for a job. | `bms:ResourceIDType` |
+| {urlToJob} | On successful job creation, this value is the full path to the job | http(s)://{server name}/job/{jobId} |
+| {revisionID} | Specific revision of content that is referenced in a repository. No revision specifies reference to the latest version. RevisionIDs are of NMTOKEN type. | http(s)://{server name}/content/abc…123/revision3 |
+| {repsoitory credentials} | Authorization credentials for the repository. | HTTP header = X-FIMS-UserName, HTTP header = X-FIMS-Password, HTTP header = X-FIMS-SessionToken |
+| {lock token} | Lock obtained from the repository. | HTTP header = X-FIMS-LockTokenId |
+| {super token} | Master lock obtained from the repository. | HTTP header = X-FIMS-SuperLockTokenId |
+| {_JobFilterCriteria_} | See next table for job filter parameters. | |
+
+Query parameters that can be used to select jobs on query job services are detailed in the following table.
+
+| Parameter              | Description                                                                         | Type                    |
+|:----------------------:|:------------------------------------------------------------------------------------|:------------------------|
+| _jobInfoSelectionType_ | Return only mandatory attributes or all attributes of a job                         | `all` or `mandatory`    |
+| _toDate_               | Jobs to be listed shall have started on or before the date specified in this field. | dateTime                |
+| _fromDate_             | Jobs to be listed shall have started on or after the date specified in this field.  | dateTime                |
+| _includeQueued_        | A flag to indicate job or jobs in the queue.                                        | `true` or `false`       |
+| _includeFinished_      | A flag to indicate job or jobs in the _Completed_, _Stopped_ or _Cleaned_ state.    | `true` or `false`       |
+| _includeActive_        | A flag to indicate job or jobs in the _Running_, _Paused_ or _Unknown_ state.       | `true` or `false`       |
+| _includeFailed_        | A flag to indicate job or jobs in the _Failed_ state.                               | `true` or `false`       |
+| _maxNumberResults_     | Maximum number of results to be listed.                                             | positive integer value. |
+
+#### REST message XML representation
+
+The REST service definition tables and RESTful notification tables specify the type of FIMS values to be carried in the 
+body of messages by reference to XML schema elements and types. FIMS XML schema define both the data type of FIMS values 
+and their serialization as XML. The body of a REST messages with "Content-Type" set to "application/xml" shall be values 
+serialized to and deserialized from XML as defined by the referenced element of the FIMS XML schemas.
+
+#### REST message JSON representation
+
+##### JSON representation as conversion to and from XML
+
+The body of any REST messages with "Content-Type" set to "application/json" shall be FIMS values serialized to JSON as 
+defined by first [serializing the value to XML](#REST-message-XML-representation) and then applying the rules of this 
+section. In reverse, the rules of this Section shall be applied to convert the JSON value back to XML and then 
+[deserialized according to the XML rules](#REST-message-XML-representation).
+
+> Note: The conversion mechanism for JSON to and from XML is provide as a means to define the JSON representation using 
+  the existing XML schema. Implementations do not have to implement this approach and may use more efficient means of 
+  serialization and deserialization
+  
+In this section, a name/value pair for an object in a JSON document is referred to as a JSON _field_.
+
+Essential to the interoperability of FIMS services, the FIMS XML schema use XML namespaces to distinguish between 
+fields that are: defined by the base schemas; specific to current services; specific to future services; extension
+properties. As JSON does not have an explicit concept of namespaces, FIMS JSON documents shall follow XML namespace 
+rules in field names and shall carry all "xmlns" attributes as would be expected in a corresponding XML document. 
+JSON field names should use prefixes wherever possible so as to unambiguously communicate the explicit namespace of 
+the property in use.
+
+> Note: XML namespace rules will be followed as a consequence of applying the rules in this section. Frameworks that 
+  support serialization to and from both JSON and can use different approaches when dealing with namespaces. Care must 
+  be taken - and extra code may have to be written - to ensure full interoperability between JSON services. For example, 
+  the prefix of a field name may change depending on the "xmlns" namespace declaration currently in scope.
+
+##### Documents
+
+Exactly one FIMS XML document shall be represented by exactly one JSON document.
+
+The root object of the JSON document shall contain exactly one field. This field shall represent the value of the root 
+element of an equivalent XML document through the application of the [element rule](#element-rule).
+
+##### Element rule
+
+Elements of simple type in XML constrained with XSD attribute _maxOccurs_ set to `0` or `1` shall map one-to-one to JSON fields. 
+The name of the field shall be the prefixed namespace-qualified name or context-based namespace-unqualified name as per 
+its contextual use in a corresponding XML document. The value of the field shall be determined by application of the [simple 
+type mapping rules](#simple-type-mapping-rules).
+
+Elements of complex type constrained with XSD attribute _maxOccurs_ set to `0` or `1` shall be represented in JSON as fields 
+of their parent object of type object. By application of the element or attribute rules, each of the child nodes of the 
+element, whether attributes or elements themselves, shall be mapped to child fields of the JSON object.
+
+Elements of any type constrained with XSD attribute _maxOccurs_ set to a value greater than 1, including those defined as 
+unbounded, shall be represented as JSON arrays, where each value of the array shall be the result of applying the 
+element rule. The order or sub-elements in an XML sequence shall correspond to the order of equivalent values in a 
+JSON array.
+
+> Note: By definition, fields of a JSON object are out of order, whereas the sub-elements of a FIMS element have a 
+  specific order. It is possible that an application that translates a FIMS JSON document into a FIMS XML document 
+  will need to reorder the fields of the JSON objects according to the FIMS XML schema prior to validation.
+
+For example:
+
+1. XML element  
+  `<Fred>ginger</Fred>`  
+  is represented in JSON as  
+  `"Fred":"ginger"`
+2. XML element  
+  `<Fred>2</Fred>`  
+  is represented in JSON as  
+  `"Fred":2`
+3. XML element  
+  `<bms:Fred>ginger</bms:Fred>`  
+  is represented in JSON as  
+  `"bms:Fred":"ginger"`
+4. XML element sequence  
+  `<fromage>cheddar</fromage><fromage>Stilton</fromage>`  
+  is represented in JSON as  
+  `"fromage":["cheddar","Stilton"]`
+5. XML complex type element  
+  `<thing><child>stuff</child></thing>`  
+  is represented in JSON as  
+  `"thing":{"child":"stuff"}`
+6. XML complex type element  
+  `<thing about="that"/>`  
+  is represented in JSON as  
+  `"thing":{"@about":"that"}`
+
+##### Attribute rule
+
+All XML attributes shall be JSON field values that are members of the parent element that defines them. The name of the 
+field shall be the same as that used in for the XML with an `@` ("commercial at" symbol) prepended to the start. If the 
+XML attribute name is namespace-qualified then the JSON field name shall be name namespace-qualified. If the XML name 
+has no namespace qualification then JSON name shall have no namespace qualification. The type of the value shall be 
+mapped according to the [simple type mapping rules](#simple-type-mapping-rules).
+
+For example:
+
+1. XML attribute  
+  `<... "fred"="ginger" ...>`  
+  is JSON field  
+  `..., "@fred":"ginger", ...`
+2. XML attribute  
+  `<... "bms:fred"="ginger", ...>`  
+  is JSON field  
+  `..., "@bms:fred":"ginger", ...`
+3. XML attribute  
+  `<... "fred"="3" ...>`  
+  is JSON field  
+  `..., "@fred":3, ...`
+
+##### Simple type mapping rules
+
+The following table defines the mapping between simple types in the XSD schemas and the limited set of simple JSON data 
+types for field values of number, string and Boolean.
+
+| XSD type                                                                        | JSON type                             |
+|:--------------------------------------------------------------------------------|:--------------------------------------|
+| Boolean                                                                         | JSON Boolean `true` or `false`        |
+| int, long, double, float, short, byte and derivatives such as non-negative int. | JSON number                           |
+| string, NCName                                                                  | JSON string                           |
+| string constrained by enumeration or regular expression                         | JSON string with the same restriction |
+| date, dateTime, time, duration                                                  | JSON string of the same format        |
+
+> Note: The type of a field in JSON cannot be determined by its value alone. In particular, care should be taken when 
+  mapping JSON numerical values to provide for a sufficient number of bytes. Some FIMS values are long or double values 
+  specifically to provide sufficient space for large or precise values, such as audio sample rate durations or frame rate 
+  conversions.
 
 * * *
 
